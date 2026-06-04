@@ -47,3 +47,11 @@ jobs:
           name: rapport-gatling-performance
           path: gatling-results/
           retention-days: 5
+
+      # 5. AJOUT DE L'EXERCICE SÉCURITÉ : Scan OWASP ZAP (+3 points)
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: 'http://localhost:8082' # On vise le port 8082 démarré à l'étape 1
+          fail_action: true
