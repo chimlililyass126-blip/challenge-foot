@@ -1,0 +1,6 @@
+@echo off
+echo Construction de l'image Docker...
+docker build -t site-foot-v1 .
+echo Lancement du conteneur...
+docker run -d -p 8080:80 --name mon-club-foot site-foot-v1
+echo Site disponible sur http://localhost:8080

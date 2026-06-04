@@ -5,46 +5,45 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # Job 1 : Build et Tests K6 (déjà existant)
-  build-and-perf-test:
+  perf-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Build et démarrage du site dans la pipeline
+      # 1. On démarre ton site de foot directement dans la pipeline
+      - name: Démarrer le site de foot
         run: |
-          docker build -t site-foot-perf .
-          docker run -d --name app-foot -p 8080:80 site-foot-perf
+          docker build -t site-foot .
+          docker run -d --name mon-site-foot -p 8082:80 site-foot
           sleep 3
 
-      - name: Exécution du Test de Performance (K6)
-        uses: grafana/k6-action@v0.3.1
-        with:
-          filename: script-k6.js
-          flags: --v 10 --duration 5s
+      # 2. On lance le test K6 (en ciblant localhost puisque tout est dans la même machine)
+      - name: Exécution du Test K6
+        run: |
+          # On modifie temporairement l'adresse pour la pipeline
+          sed -i 's/host.docker.internal/localhost/g' script-k6.js
+          docker build -f Dockerfile.k6 -t test-foot-k6 .
+          docker run --rm --network="host" test-foot-k6
 
-  # Nouveau Job 2 : Lancement de Gatling et stockage du rapport HTML
-  gatling-perf-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
-
-      - name: Créer le dossier pour les résultats Gatling
+      # 3. On prépare et on lance Gatling
+      - name: Créer le dossier résultats Gatling
         run: mkdir -p gatling-results
 
-      - name: Exécuter Gatling en mode automatique (Non-interactif)
-        # On utilise l'option -s pour lui dire de lancer automatiquement FootSimulation sans attendre d'entrée clavier
+      - name: Exécuter Gatling
         run: |
+          # On adapte le script Gatling pour cibler localhost au lieu de host.docker.internal
+          sed -i 's/host.docker.internal/localhost/g' FootSimulation.scala
           docker run --rm \
+            --network="host" \
             -v "${{ github.workspace }}:/opt/gatling/user-files/simulations" \
             -v "${{ github.workspace }}/gatling-results:/opt/gatling/results" \
             denvazh/gatling:latest -s football.FootSimulation
 
-      - name: Sauvegarder le rapport HTML dans les Artifacts GitHub
+      # 4. On stocke le rapport HTML dans les Artifacts !
+      - name: Sauvegarder le rapport Gatling (Artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: rapport-gatling-performance # Le nom de ton espace de stockage
-          path: gatling-results/ # Le dossier qui contient l'index.html à sauvegarder
-          retention-days: 5 # Le rapport reste disponible 5 jours
+          name: rapport-gatling-performance
+          path: gatling-results/
+          retention-days: 5

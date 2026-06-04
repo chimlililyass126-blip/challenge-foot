@@ -1,0 +1,4 @@
+FROM grafana/k6:latest
+# On copie TOUS les fichiers .js pour être sûr de ne pas rater le script
+COPY *.js /
+ENTRYPOINT ["k6", "run", "/script-k6.js"]

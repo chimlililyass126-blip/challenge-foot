@@ -1,0 +1,10 @@
+{
+  "simulation": "football.FootSimulation",
+  "simulationId": "footsimulation",
+  "start": 1780567413315,
+  "description": "",
+  "scenarios": ["Test Charge Foot"],
+  "assertions": [
+
+  ]
+}

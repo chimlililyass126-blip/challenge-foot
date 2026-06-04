@@ -1,0 +1,13 @@
+RUN	computerdatabase.advanced.AdvancedSimulationStep01	advancedsimulationstep01	1780566528128	 	3.2.1
+USER	Scenario Name	1	START	1780566529731	1780566529731
+REQUEST	1		Home	1780566529784	1780566529892	KO	j.n.UnknownHostException: computer-database.gatling.io: Name does not resolve
+REQUEST	1		Search	1780566530931	1780566530932	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Select	1780566531921	1780566531922	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Home	1780566532931	1780566532931	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Page 1	1780566534931	1780566534932	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Page 2	1780566535603	1780566535604	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Page 3	1780566536232	1780566536233	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Page 4	1780566536972	1780566536972	KO	j.n.UnknownHostException: computer-database.gatling.io
+REQUEST	1		Form	1780566541970	1780566542080	KO	j.n.UnknownHostException: computer-database.gatling.io: Name does not resolve
+REQUEST	1		Post	1780566543087	1780566543088	KO	j.n.UnknownHostException: computer-database.gatling.io
+USER	Scenario Name	1	END	1780566529731	1780566543096
