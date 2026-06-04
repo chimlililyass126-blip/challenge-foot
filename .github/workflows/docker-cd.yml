@@ -1,0 +1,50 @@
+name: Pipeline Déploiement Continu & Perf Foot
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # Job 1 : Build et Tests K6 (déjà existant)
+  build-and-perf-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Build et démarrage du site dans la pipeline
+        run: |
+          docker build -t site-foot-perf .
+          docker run -d --name app-foot -p 8080:80 site-foot-perf
+          sleep 3
+
+      - name: Exécution du Test de Performance (K6)
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: script-k6.js
+          flags: --v 10 --duration 5s
+
+  # Nouveau Job 2 : Lancement de Gatling et stockage du rapport HTML
+  gatling-perf-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Créer le dossier pour les résultats Gatling
+        run: mkdir -p gatling-results
+
+      - name: Exécuter Gatling en mode automatique (Non-interactif)
+        # On utilise l'option -s pour lui dire de lancer automatiquement FootSimulation sans attendre d'entrée clavier
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/opt/gatling/user-files/simulations" \
+            -v "${{ github.workspace }}/gatling-results:/opt/gatling/results" \
+            denvazh/gatling:latest -s football.FootSimulation
+
+      - name: Sauvegarder le rapport HTML dans les Artifacts GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-gatling-performance # Le nom de ton espace de stockage
+          path: gatling-results/ # Le dossier qui contient l'index.html à sauvegarder
+          retention-days: 5 # Le rapport reste disponible 5 jours
