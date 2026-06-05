@@ -48,10 +48,12 @@ jobs:
           path: gatling-results/
           retention-days: 5
 
-      # 5. AJOUT DE L'EXERCICE SÉCURITÉ : Scan OWASP ZAP (+3 points)
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+      # 5. SCAN DE SÉCURITÉ DES CVE (Bloque la pipeline en rouge)
+      - name: Détection des vulnérabilités CVE (Trivy)
+        uses: aquasecurity/trivy-action@master
         with:
-          target: 'http://localhost:8082'
-          rules_file_name: '.zap/rules.tsv' # <--- C'est ici la magie !
-          fail_action: true
+          scan-type: 'fs' # Scanne les fichiers de ton projet
+          scan-ref: '.'
+          format: 'table' # Affiche un beau tableau dans les logs
+          exit-code: '1' # <--- C'EST ÇA QUI MET LA PIPELINE EN ROUGE
+          severity: 'CRITICAL,HIGH' # Ne bloque que pour les failles graves
