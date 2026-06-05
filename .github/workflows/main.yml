@@ -1,0 +1,24 @@
+name: Pipeline Securite PetClinic
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  analyse-securite:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. On récupère le code source Java vulnérable
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      # 2. On lance Trivy pour chercher les failles dans les dépendances (pom.xml)
+      - name: Détection des vulnérabilités CVE (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1' # Force la pipeline à planter (Statut ROUGE)
+          severity: 'CRITICAL,HIGH' # Cherche spécifiquement les failles graves comme Spring4Shell
